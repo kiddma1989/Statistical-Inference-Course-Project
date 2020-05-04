@@ -1,0 +1,84 @@
+---
+title: "Statistical Inferece Project_Part 1 Simulation Exercise"
+author: "Luoning"
+date: "5/3/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+## 1.Synopsis
+
+In the second portion of the project, the ToothGrowth data in the R datasets package was analyzed and the following questions were answered.
+
+1. The ToothGrowth data was loaded and some basic exploratory data analyses were performed
+2. A basic summary of the data was provided
+3. The tooth growth by supp and doseUse was compared using confidence intervals and/or hypothesis tests
+
+## 2.Data Analysis
+
+### 2.1 Load Data 
+The toothgrowth data was loaded from the datasets.
+```{r data, cache=TRUE}
+data<-ToothGrowth
+```
+
+### 2.2 Data analysis
+Look at the observations and variables of the data and the class of the variables.
+```{r string, cache=TRUE}
+str(data)
+```
+Look at the first 6 lines of the data
+```{r head, cache=TRUE}
+head(data)
+```
+Look at the summary of the data
+```{r summary, cache=TRUE}
+summary(data)
+```
+This dataset has 60 observations and three variables, tooth length(len), delivery method (supp) and dose. The 60 observations of tooth growth of Guinea pigs shows the effect of dose of vitamin C on the tooth growth. The delivery method is a two-values factor variable : “OJ” (*Orange Juice*) and VC (*Ascorbi Acid*, a form of Vitamin C). The dose given contains three different values : 0.5, 1, and 2 mg/day. The measures are done on 10 Guinea pigs.
+
+The influence of supply delivery and dose on tooth growth was plotted using botplot.
+```{r plot, cache=TRUE,warning=FALSE, message=FALSE}
+library(ggplot2)
+data$dose<-as.factor(data$dose)
+data$supp<-as.factor(data$supp)
+p<-ggplot(data,aes(x=supp,y=len))
+p<-p+geom_boxplot(aes(fill=supp))
+p<-p+facet_wrap(~dose)
+p
+```
+
+Intuitively from observation of the boxplots, the tooth length genergally increases with dose, regardless of the type of Vitamine C supply.
+
+## 3. Compare tooth growth by supply and dose
+### 3.1 Compare tooth growth with supply
+T-test was applied for comparison with the two groups unpaired.
+```{r supp, cache=TRUE}
+t.test(data$len[data$supp=='VC'],data$len[data$supp=='OJ'],paired=FALSE)
+```
+
+From the t-test of tooth length and Vitamine C supply, we learn that
+1. The p-value is 0.06, which is close to the significance level (0.05). So we do not reject the null hypothesis.
+2. The confidence interval contains 0, so the test is not really significant.
+This means there is no significant difference between the *Ascorbic Acid* and *Orange Juice* with respect to the influence on tooth growth.
+
+### 3.2 Compare tooth growth with dose
+Now let’s try to test the influence of the dose on the tooth growth, with two intervales, lower level (0.5-1) and higher level (1-2) and unpaired.
+
+```{r dose low, cache=TRUE}
+t.test(data$len[data$dose==1],data$len[data$dose==0.5],paired=FALSE)
+```
+```{r dose high, cache=TRUE}
+t.test(data$len[data$dose==2],data$len[data$dose==1],paired=FALSE)
+```
+From the t-test of tooth length and supply dose, we learn that:
+
+1. The p-value is very small, nearly 0, which means either the sample is an extreme or the null hypothesis (change in dose has no effect on tooth growth)is false, and the latter makes more sense.
+2. the confidence interval of both tests on low and high level of doses are significantly positive. 
+This means that regardless *Ascorbic Acid* or *Orange Juice*, more doses of Vitamine C can increase the rate of tooth growth.
+
+## 4.Conclusions
+Vitamine C has positive effect on the tooth growth of Guinea pigs.
+Both *Ascorbic Acid* and *Orange Juice* are supply of Vitamine C and show insignificant difference in the effect.
